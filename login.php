@@ -2,6 +2,57 @@
  
 include('config.php');
 session_start();
+
+function ShowBooks()
+{
+    echo "<table style='border: solid 1px black;'>";
+                echo "<tr><th>Name</th><th>Publisher</th><th>Caragory</th><th>Price</th></tr>";
+
+                class TableRows extends RecursiveIteratorIterator 
+                {
+                    function __construct($it) 
+                    {
+                    parent::__construct($it, self::LEAVES_ONLY);
+                    }
+
+                    function current() 
+                    {
+                        return "<td style='width:150px;border:1px solid black;'>" . parent::current(). "</td>";
+                    }
+
+                    function beginChildren() 
+                    {
+                        echo "<tr>";
+                    }
+
+                    function endChildren() 
+                    {
+                        echo "</tr>" . "\n";
+                    }
+                }
+
+                $servername = "localhost";
+                $username = "root";
+                $password = "";
+                $dbname = "bookstore";
+
+                try {
+                $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
+                $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                $stmt = $conn->prepare("SELECT name, publisher, catagory, price FROM books");
+                $stmt->execute();
+
+                // set the resulting array to associative
+                $result = $stmt->setFetchMode(PDO::FETCH_ASSOC);
+                foreach(new TableRows(new RecursiveArrayIterator($stmt->fetchAll())) as $k=>$v) {
+                    echo $v;
+                }
+                } catch(PDOException $e) {
+                echo "Error: " . $e->getMessage();
+                }
+                $conn = null;
+                echo "</table>";
+}
  
 if (isset($_POST['login'])) {
  
@@ -19,6 +70,15 @@ if (isset($_POST['login'])) {
         <?php
         
         echo 'Logged in as admin <br><br>';
+        echo '<form action="" method="post">
+        <input type="submit" name="showUsers" value="Show Users" />
+        <input type="submit" name="showBooks" value="Show Store Books" />
+        </form>';
+
+        if($_SERVER['REQUEST_METHOD'] == "POST" and isset($_POST['showBooks']))
+        {
+            ShowBooks();
+        }
 
     }
     else
@@ -123,6 +183,7 @@ if (isset($_POST['login'])) {
 
 <div id = "adminControl" style="display:none">
 <form action="" method="post">
-    <input type="submit" name="someAction" value="GO" />
+    <input type="submit" name="showUsers" value="Show Users" />
+    <input type="submit" name="showBooks" value="Show Store Books" />
 </form>
 </div>
