@@ -20,6 +20,64 @@ if (isset($_POST['login'])) {
         if (password_verify($password, $result['password'])) {
             $_SESSION['user_id'] = $result['id'];
             echo '<p class="success">Congratulations, you are logged in!</p>';
+            ?>          
+            <style type="text/css">#form{
+                display:none;
+                }
+            </style>
+
+            <?php
+            echo "<table style='border: solid 1px black;'>";
+            echo "<tr><th>Name</th><th>Publisher</th><th>Caragory</th><th>Price</th></tr>";
+
+            class TableRows extends RecursiveIteratorIterator 
+            {
+                function __construct($it) 
+                {
+                parent::__construct($it, self::LEAVES_ONLY);
+                }
+
+                function current() 
+                {
+                    return "<td style='width:150px;border:1px solid black;'>" . parent::current(). "</td>";
+                }
+
+                function beginChildren() 
+                {
+                    echo "<tr>";
+                }
+
+                function endChildren() 
+                {
+                    echo "</tr>" . "\n";
+                }
+            }
+
+            $servername = "localhost";
+            $username = "root";
+            $password = "";
+            $dbname = "bookstore";
+
+            try {
+            $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
+            $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $stmt = $conn->prepare("SELECT name, publisher, catagory, price FROM books");
+            $stmt->execute();
+
+            // set the resulting array to associative
+            $result = $stmt->setFetchMode(PDO::FETCH_ASSOC);
+            foreach(new TableRows(new RecursiveArrayIterator($stmt->fetchAll())) as $k=>$v) {
+                echo $v;
+            }
+            } catch(PDOException $e) {
+            echo "Error: " . $e->getMessage();
+            }
+            $conn = null;
+            echo "</table>";
+
+
+
+
         } else {
             echo '<p class="error">Username password combination is wrong!</p>';
         }
@@ -28,6 +86,7 @@ if (isset($_POST['login'])) {
  
 ?>
 
+<div id = "form">
 <form method="post" action="" name="signin-form">
     <div class="form-element">
         <label>Username</label>
@@ -39,3 +98,4 @@ if (isset($_POST['login'])) {
     </div>
     <button type="submit" name="login" value="login">Log In</button>
 </form>
+</div>
