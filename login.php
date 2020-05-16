@@ -11,13 +11,15 @@ if (isset($_POST['login'])) {
         <style type="text/css">#form{
             display:none;
             }
+            #adminControl{
+                display:inline;
+            }
         </style>
 
         <?php
         
         echo 'Logged in as admin <br><br>';
 
-        
     }
     else
     {
@@ -116,5 +118,11 @@ if (isset($_POST['login'])) {
         <input type="password" name="password" required />
     </div>
     <button type="submit" name="login" value="login">Log In</button>
+</form>
+</div>
+
+<div id = "adminControl" style="display:none">
+<form action="" method="post">
+    <input type="submit" name="someAction" value="GO" />
 </form>
 </div>
